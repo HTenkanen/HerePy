@@ -52,7 +52,10 @@ class RoutingApi(HEREApi):
     def car_route(self,
                   waypoint_a,
                   waypoint_b,
-                  modes=None):
+                  modes=None,
+                  departure='now',
+                  alternatives=0,
+                  route_attributes="wp,sm,lg,ri"):
         """Request a driving route between two points
         Args:
           waypoint_a (array):
@@ -61,6 +64,22 @@ class RoutingApi(HEREApi):
             array including latitude and longitude in order.
           modes (array):
             array including RouteMode enums.
+          departure (str):
+            departure time in ISO 8601 Format, e.g. "2019-05-06T09:00:00+02".
+            Time when travel is expected to start. Traffic speed and incidents 
+            are taken into account when calculating the route (note that in case of 
+            a past departure time the historical traffic is limited to one year). 
+            You can use now to specify the current time. 
+          alternatives (int):
+              Maximum number of alternative routes that will be calculated and returned. 
+              Alternative routes can be unavailable, thus they are not guaranteed to be 
+              returned. If at least one via point is used in a route request, returning 
+              alternative routes is not supported. 0 stands for "no alternative routes", 
+              i.e. only best route is returned.
+          route_attributes (str):
+              Define which attributes are included in the response as part of the data representation 
+              of the route. Defaults to waypoints, summary, legs and routeID.
+              See more info and possible values from: https://developer.here.com/documentation/routing/topics/resource-param-type-route-representation-options.html#type-route-attribute
         Returns:
           RoutingResponse instance or HEREError"""
 
@@ -72,7 +91,9 @@ class RoutingApi(HEREApi):
                 'mode':  self.__prepare_mode_values(modes),
                 'app_id': self._app_id,
                 'app_code': self._app_code,
-                'departure': 'now'}
+                'departure': departure,
+                'alternatives': alternatives,
+                'routeAttributes': route_attributes}
         return self.__get(data)
 
     def pedastrian_route(self,
